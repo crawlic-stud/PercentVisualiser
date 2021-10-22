@@ -2,6 +2,7 @@ import random
 from tkinter import Tk, simpledialog
 import pygame
 from classes import Game, Button
+from utils import closest_divs
 from math import sqrt
 
 
@@ -78,22 +79,6 @@ class PercentVisualisation(Game):
         # drawing yellow man images
         self.screen.blit(pygame.transform.scale(self.YELLOW_MAN, (self.man_size, self.man_size)), self.random_pos)
         self.screen.blit(pygame.transform.scale(self.LIGHT, (self.man_size, self.man_size)), self.random_pos)
-
-
-def all_divs(number):
-    """Finding all dividers of the number."""
-    dividers = []
-    for i in range(1, number + 1):
-        if number % i == 0:
-            dividers.append(i)
-    return dividers
-
-
-def closest_divs(number):
-    """Finding two closest dividers of the number."""
-    dividers = all_divs(number)
-    center = dividers[len(dividers)//2]
-    return center, int(number / center),
 
 
 if __name__ == '__main__':
