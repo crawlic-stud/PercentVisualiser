@@ -6,6 +6,8 @@ from math import sqrt
 
 
 class PercentVisualisation(Game):
+
+    # constants
     BLUE_MAN = pygame.image.load('assets\\blueman.png')
     YELLOW_MAN = pygame.image.load('assets\\yellowman.png')
     LIGHT = pygame.image.load('assets\\light.png')
@@ -24,7 +26,7 @@ class PercentVisualisation(Game):
     def setup(self):
         """Setup before starting program loop."""
         super().setup()
-        self.user_entry()
+        # self.user_entry()
 
     def user_entry(self):
         """Enter new percent value."""
@@ -37,15 +39,21 @@ class PercentVisualisation(Game):
 
     def update_grid(self):
         """Update grid and update man's size."""
+
+        # calculating max grid size with user input given
         self.max_grid_size = round(1 / self.user_input * 100)
 
+        # calculating most optimal number of rows and columns to grid
         rows, cols = closest_divs(self.max_grid_size)
 
+        # calculating size of picture to scale
         self.man_size = round(max(self.square_width, self.square_height) / max(rows, cols))
 
-        y_offset = (self.height - cols * self.man_size) // 2
+        # calculating offset of the whole grid
         x_offset = (self.width - rows * self.man_size) // 2
+        y_offset = (self.height - cols * self.man_size) // 2
 
+        # creating grid itself
         self.grid = [(row * self.man_size + x_offset, col * self.man_size + y_offset)
                      for row in range(rows) for col in range(cols)]
 
@@ -63,14 +71,17 @@ class PercentVisualisation(Game):
                 if event.key == pygame.K_SPACE:
                     self.user_entry()
 
+        # drawing all blue man images
         for pos in self.grid:
             self.screen.blit(pygame.transform.scale(self.BLUE_MAN, (self.man_size, self.man_size)), pos)
 
+        # drawing yellow man images
         self.screen.blit(pygame.transform.scale(self.YELLOW_MAN, (self.man_size, self.man_size)), self.random_pos)
         self.screen.blit(pygame.transform.scale(self.LIGHT, (self.man_size, self.man_size)), self.random_pos)
 
 
 def all_divs(number):
+    """Finding all dividers of the number."""
     dividers = []
     for i in range(1, number + 1):
         if number % i == 0:
@@ -79,6 +90,7 @@ def all_divs(number):
 
 
 def closest_divs(number):
+    """Finding two closest dividers of the number."""
     dividers = all_divs(number)
     center = dividers[len(dividers)//2]
     return center, int(number / center),
