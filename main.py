@@ -118,6 +118,7 @@ class PercentVisualisation(Game):
         digits = [num for num in range(1, 101)]
         print_text(self.screen, f'{int(self.user_input) if self.user_input in digits else self.user_input}%',
                    0, 0, size=50)
+        print_text(self.screen, f'{int(self.user_input) if self.user_input >= 1 else self.user_input}%', 0, 0, size=50)
 
         # show information about grid size and chance
         if self.info:
