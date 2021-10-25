@@ -28,6 +28,7 @@ class PercentVisualisation(Game):
         self.random_pos = (0, 0)
         self.info = False
         self.options = False
+        self.mode2_size = 20
 
         # 0 - 1st mode
         # 1 - 2nd mode
@@ -35,7 +36,7 @@ class PercentVisualisation(Game):
 
         self.buttons = [
             Button([10, self.height-40, 195, 30], self.screen, 'Change value',
-                   (50, 50, 50), (40, 40, 40), command=self.user_entry),
+                   (50, 50, 50), (40, 40, 40), command=self.value_entry),
             Button([205, self.height - 40, 195, 30], self.screen, 'Random value',
                    (50, 50, 50), (40, 40, 40), command=self.random_value),
             Button([400, self.height - 40, 195, 30], self.screen, 'Show info',
@@ -45,11 +46,17 @@ class PercentVisualisation(Game):
         ]
 
         self.option_buttons = [
-            Button([self.width - 700, self.height - 600, 300, 50], self.screen, 'Mode 1',
+            Button([self.width - 205, self.height - 220, 195, 30], self.screen, 'Mode 1',
                    (50, 50, 50), (40, 40, 40), command=lambda: self.mode_switch(0)),
-            Button([self.width - 400, self.height - 600, 300, 50], self.screen, 'Mode 2',
+            Button([self.width - 205, self.height - 170, 195, 30], self.screen, 'Mode 2',
                    (50, 50, 50), (40, 40, 40), command=lambda: self.mode_switch(1)),
-            Button([self.width - 110, self.height - 610, 20, 20], self.screen, 'X',
+            Button([self.width - 85, self.height - 140, 30, 30], self.screen, '+',
+                   (50, 50, 50), (40, 40, 40), command=lambda: self.change_size(1)),
+            Button([self.width - 55, self.height - 140, 30, 30], self.screen, '-',
+                   (50, 50, 50), (40, 40, 40), command=lambda: self.change_size(-1)),
+            Button([self.width - 135, self.height - 140, 30, 30], self.screen, '',
+                   (50, 50, 50), (40, 40, 40), command=self.size_entry),
+            Button([self.width - 30, self.height - 240, 20, 20], self.screen, 'X',
                    (50, 50, 50), (40, 40, 40), command=self.options_switch),
         ]
 
@@ -58,7 +65,7 @@ class PercentVisualisation(Game):
         super().setup()
         self.update_grid()
 
-    def user_entry(self):
+    def value_entry(self):
         """Enter new percent value."""
         root = Tk()
         root.withdraw()
@@ -70,24 +77,36 @@ class PercentVisualisation(Game):
             return
         self.update_grid()
 
+    def size_entry(self):
+        """Enter new size value."""
+        root = Tk()
+        root.withdraw()
+        size = self.mode2_size
+        self.mode2_size = simpledialog.askinteger('Entry', 'New size:', minvalue=1)
+        if self.mode2_size is None:
+            self.mode2_size = size
+
     def show_info(self):
         """Display information"""
         rows, cols = closest_divs(self.max_grid_size)
-        size_info = render_text(f'Grid size: {rows}x{cols}', color=(150, 150, 150))
         chance_info = render_text(f'Chance: ~ 1 / {self.max_grid_size}', color=(150, 150, 150))
         mode_info = render_text(f'Mode: {self.mode + 1}', color=(150, 150, 150))
 
-        self.screen.blit(size_info, (650, 0))
-        self.screen.blit(chance_info, (650, 20))
-        self.screen.blit(mode_info, (650, 40))
+        self.screen.blit(chance_info, (650, 0))
+        self.screen.blit(mode_info, (650, 20))
+        if not self.mode:
+            print_text(self.screen, f'Grid size: {rows}x{cols}', 650, 40, color=(150, 150, 150))
 
     def show_options(self):
         """Display options."""
-        pygame.draw.rect(self.screen, (40, 40, 40), (self.width - 700, self.height - 600, 600, 400))
+        pygame.draw.rect(self.screen, (40, 40, 40), (595, self.height - 240, 195, 200))
+
         for button in self.option_buttons:
             button.radius = 0
             button.draw()
-        print_text(self.screen, 'Sorry, didn\'t implement that yet :(', self.width - 600, self.height - 400, size=35)
+
+        print_text(self.screen, f'size: {self.mode2_size}', self.width - 185, self.height - 140,
+                   size=25, color=(150, 150, 150))
 
     def update_grid(self):
         """Update grid and update man's size."""
@@ -131,6 +150,33 @@ class PercentVisualisation(Game):
         self.mode = mode
         pygame.time.wait(100)
 
+    def change_size(self, value):
+        if self.mode2_size < 2 and value < 0:
+            return
+        self.mode2_size += value
+        pygame.time.wait(100)
+
+    def draw_mode(self):
+        if self.mode == 0:
+            for pos in self.grid:
+                self.screen.blit(pygame.transform.scale(self.BLUE_MAN, (self.man_size, self.man_size)), pos)
+
+            # drawing yellow man images
+            self.screen.blit(pygame.transform.scale(self.YELLOW_MAN, (self.man_size, self.man_size)), self.random_pos)
+            self.screen.blit(pygame.transform.scale(self.LIGHT, (self.man_size, self.man_size)), self.random_pos)
+
+        else:
+            man_size = round(self.square_height / self.mode2_size)
+            grid = [(row * man_size + 50, col * man_size + 50)
+                    for row in range(self.mode2_size) for col in range(self.mode2_size)]
+
+            for pos in grid:
+                self.screen.blit(pygame.transform.scale(self.BLUE_MAN, (man_size, man_size)), pos)
+
+            for pos in range(round(self.user_input/100 * self.mode2_size**2)):
+                self.screen.blit(pygame.transform.scale(self.YELLOW_MAN, (man_size, man_size)),
+                                 grid[pos])
+
     def main(self):
         """Main state of the program."""
         self.screen.fill(self.BACKGROUND)
@@ -141,18 +187,12 @@ class PercentVisualisation(Game):
             if event.type == pygame.KEYDOWN:
                 pass
 
-        # drawing all blue man images
-        for pos in self.grid:
-            self.screen.blit(pygame.transform.scale(self.BLUE_MAN, (self.man_size, self.man_size)), pos)
-
-        # drawing yellow man images
-        self.screen.blit(pygame.transform.scale(self.YELLOW_MAN, (self.man_size, self.man_size)), self.random_pos)
-        self.screen.blit(pygame.transform.scale(self.LIGHT, (self.man_size, self.man_size)), self.random_pos)
-
         # display percent value
         digits = [num for num in range(1, 101)]
         print_text(self.screen, f'{int(self.user_input) if self.user_input in digits else self.user_input}%',
                    5, 5, size=50)
+
+        self.draw_mode()
 
         # draw buttons
         for button in self.buttons:
