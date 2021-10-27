@@ -89,13 +89,18 @@ class PercentVisualisation(Game):
     def show_info(self):
         """Display information"""
         rows, cols = closest_divs(self.max_grid_size)
-        chance_info = render_text(f'Chance: ~ 1 / {self.max_grid_size}', color=(150, 150, 150))
         mode_info = render_text(f'Mode: {self.mode + 1}', color=(150, 150, 150))
 
-        self.screen.blit(chance_info, (650, 0))
-        self.screen.blit(mode_info, (650, 20))
-        if not self.mode:
-            print_text(self.screen, f'Grid size: {rows}x{cols}', 650, 40, color=(150, 150, 150))
+        info_x = 640
+
+        self.screen.blit(mode_info, (info_x, 0))
+
+        if self.mode == 0:
+            print_text(self.screen, f'Chance: ~ 1 / {self.max_grid_size}', info_x, 20, color=(150, 150, 150))
+            print_text(self.screen, f'Grid size: {rows}x{cols}', info_x, 40, color=(150, 150, 150))
+        else:
+            print_text(self.screen, f'Chance: ~ {round(self.user_input/100 * self.mode2_size**2)} / {self.mode2_size ** 2}', info_x, 20, color=(150, 150, 150))
+            print_text(self.screen, f'Grid size: {self.mode2_size}x{self.mode2_size}', info_x, 40, color=(150, 150, 150))
 
     def show_options(self):
         """Display options."""
