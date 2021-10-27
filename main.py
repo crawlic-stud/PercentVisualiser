@@ -91,7 +91,7 @@ class PercentVisualisation(Game):
         rows, cols = closest_divs(self.max_grid_size)
         mode_info = render_text(f'Mode: {self.mode + 1}', color=(150, 150, 150))
 
-        info_x = 640
+        info_x = 600
 
         self.screen.blit(mode_info, (info_x, 0))
 
